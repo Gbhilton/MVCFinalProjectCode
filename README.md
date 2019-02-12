@@ -1,7 +1,7 @@
 # Live Project
 
 ## Introduction
-For the last two weeks of my time at the tech academy, I worked with my peers in a team developing a full scale MVC/MVVM Web Application in C#. Working on a legacy codebase was a great learning oppertunity for fixing bugs, cleaning up code, and adding requested features. There were some big changes that could have been a large time sink, but we used what we had to deliver what was needed on time. I saw how a good developer works with what they have to make a quality product. I worked on several [back end stories](#back-end-stories) that I am very proud of. Because much of the site had already been built, there were also a good deal of [front end stories](#front-end-stories) and UX improvements that needed to be completed, all of varying degrees of difficulty. Everyone on the team had a chance to work on front end and back end stories. Over the two week sprint I also had the opportunity to work on some other project management and team programming [skills](#other-skills-learned) that I'm confident I will use again and again on future projects.
+For the last two weeks of my time at the tech academy, I worked with my peers in a team developing a full scale MVC/MVVM Web Application in C#. Working on a legacy codebase was a great learning oppertunity for fixing bugs, cleaning up code, and adding requested features. There were some big changes that could have been a large time sink, but we used what we had to deliver what was needed on time. I saw how a good developer works with what they have to make a quality product. I worked on several [back end stories](#back-end-stories) that I am very proud of. Because much of the site had already been built, there were also a good deal of [front end stories](#front-end-stories) and UX improvements that needed to be completed, all of varying degrees of difficulty. Everyone on the team had a chance to work on front end and back end stories. Over the two weeks sprint I also had the opportunity to work on some other project management and team programming [skills](#other-skills-learned) that I'm confident I will use again and again on future projects.
   
 Below are descriptions of the stories I worked on, along with code snippets and navigation links. I also have some full code files in this repo for the larger functionalities I implemented.
 
@@ -22,7 +22,7 @@ Below are descriptions of the stories I worked on, along with code snippets and 
 
 -Added controller functions for the user inbox ("Inbox") and the admin inbox ("InboxAdmin")
 
-***I changed the "Index" view for the admin, which was just an inbox view for admin only. I then added a new Admin Inbox view, and removed the Index view entirely. This allowed, when the user/admin clicked
+***I changed the "Index" view for the admin, which was just an inbox view for admin only. I then added a new Admin Inbox view and removed the Index view entirely. This allowed, when the user/admin clicked
 to see their messages, it would determine if the logged in user was a normal user or an admin and route them to the correct view. See below.***
 
 ***Changed From***
@@ -66,7 +66,7 @@ to see their messages, it would determine if the logged in user was a normal use
 		else return View("LoginError");
 	}
 
--Added a completely new Admin Inbox view to dispaly more than just messages like the User Inbox. The Admin Inbox also displays Time Off Requests and the ability to approve/deny them. This code also filters the view to 
+-Added a completely new Admin Inbox view to display more than just messages like the User Inbox. The Admin Inbox also displays Time Off Requests and the ability to approve/deny them. This code also filters the view to 
 only show Time Off Requests that have an empty "Approver ID", which then limits the view to only open requests. This method used the new View Model created above to pass in properties from both Messages and TimeOffEvents Models.
 
 	// GET: Message/Inbox for Admin
@@ -90,7 +90,7 @@ only show Time Off Requests that have an empty "Approver ID", which then limits 
             else return View("LoginError");
         }
 
--Added the ability to approve or deny time off requests from the Admin Inbox in the Message Controller. Once approved or denied, the view is "Refreshed" and the approved/denied request no longer shows in the view.
+-Added the ability to approve or deny time off requests from the Admin Inbox in the Message Controller. Once approved or denied, the view is "Refreshed”, and the approved/denied request no longer shows in the view.
 
         public ActionResult Approve(Guid id)
         {
