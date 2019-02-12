@@ -16,8 +16,8 @@ Below are descriptions of the stories I worked on, along with code snippets and 
 
 	public class MessageTimeOffViewModel
 		{
-			public IEnumerable<Message> Messages { get; set; }
-			public IEnumerable<TimeOffEvent> TimeOffEvents { get; set; }
+		public IEnumerable<Message> Messages { get; set; }
+		public IEnumerable<TimeOffEvent> TimeOffEvents { get; set; }
 		}
 
 - Added controller functions for the user inbox ("Inbox") and the admin inbox ("InboxAdmin")
@@ -31,40 +31,40 @@ to see their messages, it would determine if the logged in user was a normal use
 		{
 		if (User.IsInRole("Admin"))
 			{
-				return View(db.Messages.ToList());
+			return View(db.Messages.ToList());
 			}
 			//Added "Shared" to this, before it was "~/Views/AdminError.cshtml" and could not find that location.
-				else return View("~/Views/Shared/AdminError.cshtml");
+			else return View("~/Views/Shared/AdminError.cshtml");
 		}
 
 ***To Below***
 
 	// GET: Message/Inbox for Users
 	public ActionResult Inbox()
-		{
+	{
 		if (User.Identity.IsAuthenticated)
-			{
+		{
 			if (User.IsInRole("Admin"))
-				{
-					return RedirectToAction("InboxAdmin");
-				}
+			{
+			return RedirectToAction("InboxAdmin");
+			}
 			var userid = HttpContext.User.Identity.GetUserId();
 			var messagesList = db.Messages.ToList();
 			var userMessages = new List<Message>();
 			foreach (var message in messagesList)
-				{
+			{
 				foreach (var Id in message.RecipientList)
-					{
+				{
 					if (Id == Guid.Parse(userid))
-						{
-							userMessages.Add(message);
-						}
+					{
+					userMessages.Add(message);
 					}
 				}
-			return View(userMessages);
 			}
-			else return View("LoginError");
+		return View(userMessages);
 		}
+		else return View("LoginError");
+	}
 
 ***Added a completely new Admin Inbox view to dispaly more than just messages like the User Inbox. The Admin Inbox also displays Time Off Requests and the ability to approve/deny them. This code also filters the view to 
 only show Time Off Requests that have an empty "Approver ID", which then limits the view to only open requests. This method used the new View Model created above to pass in properties from both Messages and TimeOffEvents Models.***
@@ -111,114 +111,114 @@ only show Time Off Requests that have an empty "Approver ID", which then limits 
 		
 -Added an Inbox Admin view that had an additional section of "Time Off Requests", the regular inbox for the user does not have this view. I also updated through HTML the layout for a better UI.
 
-@model Schedule_It_2.Models.MessageTimeOffViewModel
+	@model Schedule_It_2.Models.MessageTimeOffViewModel
 
-<h2>Inbox</h2>
-<h4>Admin</h4>
+	<h2>Inbox</h2>
+	<h4>Admin</h4>
 
-<p class="createMessageBtn">
-<p class="btn btn-default">
-    @Html.ActionLink("Send Message", "Create")
-</p>
-</p>
+	<p class="createMessageBtn">
+	<p class="btn btn-default">
+	    @Html.ActionLink("Send Message", "Create")
+	</p>
+	</p>
 
-<br />
-<h4>Messages</h4>
+	<br />
+	<h4>Messages</h4>
 
-<table class="table">
-    <tr>
-        <th>
-           Date Sent
-        </th>
-        <th>
-           Date Read
-        </th>
-        <th>
-           Message Title
-        </th>
-        <th></th>
-    </tr>
+	<table class="table">
+	    <tr>
+		<th>
+		   Date Sent
+		</th>
+		<th>
+		   Date Read
+		</th>
+		<th>
+		   Message Title
+		</th>
+		<th></th>
+	    </tr>
 
-    @foreach (var item in Model.Messages)
-    {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.DateSent)
-            </td>
-            <td class="readDate">
-                @Html.DisplayFor(modelItem => item.DateRead)
-            </td>
-            <td>
-                <span class="message-title">@Html.DisplayFor(modelItem => item.MessageTitle)</span>
-            </td>
-            <td hidden class="messageContent">
-                @Html.DisplayFor(modelItem => item.Content)
-            </td>
-        </tr>
-    }
-</table>
+	    @foreach (var item in Model.Messages)
+	    {
+		<tr>
+		    <td>
+			@Html.DisplayFor(modelItem => item.DateSent)
+		    </td>
+		    <td class="readDate">
+			@Html.DisplayFor(modelItem => item.DateRead)
+		    </td>
+		    <td>
+			<span class="message-title">@Html.DisplayFor(modelItem => item.MessageTitle)</span>
+		    </td>
+		    <td hidden class="messageContent">
+			@Html.DisplayFor(modelItem => item.Content)
+		    </td>
+		</tr>
+	    }
+	</table>
 
-<br />
-<h4>Time Off Requests</h4>
+	<br />
+	<h4>Time Off Requests</h4>
 
-<table class="table">
-    <tr>
-        <th>
-            User Id
-        </th>
-        <th>
-            Title
-        </th>
-        <th>
-            Note
-        </th>
-        <th>
-            Start Date
-        </th>
-        <th>
-            End Date
-        </th>
-        <th>
-            Approval Decision
-        </th>
-        <th></th>
-    </tr>
+	<table class="table">
+	    <tr>
+		<th>
+		    User Id
+		</th>
+		<th>
+		    Title
+		</th>
+		<th>
+		    Note
+		</th>
+		<th>
+		    Start Date
+		</th>
+		<th>
+		    End Date
+		</th>
+		<th>
+		    Approval Decision
+		</th>
+		<th></th>
+	    </tr>
 
-    @foreach (var item in Model.TimeOffEvents)
-    {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.UserId)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Title)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Note)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Start)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.End)
-        </td>
-        <td>
-            @Html.ActionLink("Approve", "Approve", new { id = item.EventId})
-            @Html.ActionLink("Deny", "Deny", new { id = item.EventId})
-        </td>
-    </tr>
-    }
-</table>
+	    @foreach (var item in Model.TimeOffEvents)
+	    {
+	    <tr>
+		<td>
+		    @Html.DisplayFor(modelItem => item.UserId)
+		</td>
+		<td>
+		    @Html.DisplayFor(modelItem => item.Title)
+		</td>
+		<td>
+		    @Html.DisplayFor(modelItem => item.Note)
+		</td>
+		<td>
+		    @Html.DisplayFor(modelItem => item.Start)
+		</td>
+		<td>
+		    @Html.DisplayFor(modelItem => item.End)
+		</td>
+		<td>
+		    @Html.ActionLink("Approve", "Approve", new { id = item.EventId})
+		    @Html.ActionLink("Deny", "Deny", new { id = item.EventId})
+		</td>
+	    </tr>
+	    }
+	</table>
 
-@* Modal that shows the contents of the message *@
-<div id="inboxModal" class="modal">
-    <div class="modal-content">
-        <h4 id="modalTitle">Error</h4>
-        @*<p>From: <span id="modalFrom"></span></p>*@
-        <p id="modalContent">There was an error getting the message information</p>
-        <div class="btn btn-default closeModal">Close</div>
-    </div>
-</div>
+	@* Modal that shows the contents of the message *@
+	<div id="inboxModal" class="modal">
+	    <div class="modal-content">
+		<h4 id="modalTitle">Error</h4>
+		@*<p>From: <span id="modalFrom"></span></p>*@
+		<p id="modalContent">There was an error getting the message information</p>
+		<div class="btn btn-default closeModal">Close</div>
+	    </div>
+	</div>
 
 ### Time Off Event View
 ***Time Off Request View should only display open time off requests that have not been approved/denied yet.***
@@ -227,22 +227,24 @@ only show Time Off Requests that have an empty "Approver ID", which then limits 
 specific time off requests would no longer be displayed in the view.
 
 ***Changed From***
-if (User.IsInRole("Admin"))
+
+	if (User.IsInRole("Admin"))
         {
-			ViewBag.headerData = new TimeOffEvent();
-			return View(db.TimeOffEvents.OrderBy(x => x.Start).ToList());
+		ViewBag.headerData = new TimeOffEvent();
+		return View(db.TimeOffEvents.OrderBy(x => x.Start).ToList());
         }
-    else return View("~/Views/Shared/AdminError.cshtml");
-}
+    	else return View("~/Views/Shared/AdminError.cshtml");
+	}
 
 ***To Below***
-if (User.IsInRole("Admin"))
+
+	if (User.IsInRole("Admin"))
         {
-			ViewBag.headerData = new TimeOffEvent();
-			return View(db.TimeOffEvents.Where(x => x.ApproverId == null));
+		ViewBag.headerData = new TimeOffEvent();
+		return View(db.TimeOffEvents.Where(x => x.ApproverId == null));
         }
     else return View("~/Views/Shared/AdminError.cshtml");
-}
+	}
 
 *Jump to: [Front End Stories](#front-end-stories), [Back End Stories](#back-end-stories), [Other Skills](#other-skills-learned), [Page Top](#live-project)*
 
@@ -256,23 +258,26 @@ if (User.IsInRole("Admin"))
 -Added a "button" to the inbox of both the user and the admin to create messages to send internally. Added a new class in CSS to the Site.CSS file to allow for customization of the new message button.
 
 ***Changed From***
--<p>
-    @Html.ActionLink("Create New", "Create")
--</p>
+
+	<p>
+	    @Html.ActionLink("Create New", "Create")
+	</p>
 
 ***To Below***
--<p class="createMessageBtn">
--<p class="btn btn-default">
-    @Html.ActionLink("Send Message", "Create")
--</p>
--</p>
+
+	<p class="createMessageBtn">
+	<p class="btn btn-default">
+	    @Html.ActionLink("Send Message", "Create")
+	</p>
+	</p>
 
 ***CSS***
--/* Styling the "New Message" button in the inbox and index views */
-.createMessageBtn {
-    text-decoration: none;
-    margin-bottom: 20px;
-}
+
+	/* Styling the "New Message" button in the inbox and index views */
+		.createMessageBtn {
+   			 	text-decoration: none;
+    			 	margin-bottom: 20px;
+				  }
 
 ### Remove Delete Capability
 ***Removed capability to delete a message once sent/created.***
@@ -280,10 +285,11 @@ if (User.IsInRole("Admin"))
 -Removed the delete function from the previous version. Removed the delete/edit ability from the view, as well as removing the delete/edit view files from previous developers. 
 
 ***Commented out the below code.***
--<td>
-    //Removed the option to delete or edit a message once it has been sent.
-    @*Html.ActionLink("Delete", "Delete", new { id = item.MessageId })*@
--</td>
+
+	<td>
+	    //Removed the option to delete or edit a message once it has been sent.
+	    @*Html.ActionLink("Delete", "Delete", new { id = item.MessageId })*@
+	</td>
 
 *Jump to: [Front End Stories](#front-end-stories), [Back End Stories](#back-end-stories), [Other Skills](#other-skills-learned), [Page Top](#live-project)*
 
@@ -293,7 +299,7 @@ if (User.IsInRole("Admin"))
 -I rerouted the view to the correct file. When I started this project the error routing was not working and didn't route to the correct view, thus displaying an error webpage.
 
 	else return View("~/Views/AdminError.cshtml");
-//Added "Shared" to this, before it was "~/Views/AdminError.cshtml" and could not find that location.
+	//Added "Shared" to this, before it was "~/Views/AdminError.cshtml" and could not find that location.
 	else return View("~/Views/Shared/AdminError.cshtml");
 
 -When I started this project, the past developers were using an "Index" as an Admin Inbox. It was an inbox, but only for admin. However it was misleading and unnecessary, thus I created a user inbox and an admin inbox view. Since
@@ -302,7 +308,7 @@ also issues when inside a messages, one could click "return to inbox", and for a
 was unneeded functionality that was resolved by this and adding an admin inbox view instead.
 
 	return RedirectToAction("Index");
-//Changed the Redirect to "Inbox" instead of "Index". This would cause an error if you were not an admin. Now once you create the message it brings you back to your inbox.
+	//Changed the Redirect to "Inbox" instead of "Index". This would cause an error if you were not an admin. Now once you create the message it brings you back to your inbox.
 	return RedirectToAction("Inbox");
 
 *Jump to: [Front End Stories](#front-end-stories), [Back End Stories](#back-end-stories), [Other Skills](#other-skills-learned), [Page Top](#live-project)*
