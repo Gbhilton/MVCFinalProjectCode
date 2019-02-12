@@ -26,16 +26,19 @@ Below are descriptions of the stories I worked on, along with code snippets and 
 to see their messages, it would determine if the logged in user was a normal user or an admin and route them to the correct view. See below.***
 
 ***Changed From***
-public ActionResult Index()
-{
-     if (User.IsInRole("Admin"))
-         {
-             return View(db.Messages.ToList());
-          }
-     //Added "Shared" to this, before it was "~/Views/AdminError.cshtml" and could not find that location.
-            else return View("~/Views/Shared/AdminError.cshtml");
-}
+
+	public ActionResult Index()
+		{
+			if (User.IsInRole("Admin"))
+				{
+					return View(db.Messages.ToList());
+				}
+			//Added "Shared" to this, before it was "~/Views/AdminError.cshtml" and could not find that location.
+				else return View("~/Views/Shared/AdminError.cshtml");
+		}
+
 ***To Below***
+
 // GET: Message/Inbox for Users
 public ActionResult Inbox()
         {
