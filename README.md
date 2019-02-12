@@ -12,7 +12,7 @@ Below are descriptions of the stories I worked on, along with code snippets and 
 ### Admin Inbox Time Off
 ***Admin Inbox that displays functioning Time Off Requests with Approve/Deny ability.***
 
-- Added a new View Model to bring in Message and TimeOffEvent Properties for the Inbox Admin View.
+-Added a new View Model to bring in Message and TimeOffEvent Properties for the Inbox Admin View.
 
 	public class MessageTimeOffViewModel
 		{
@@ -20,7 +20,7 @@ Below are descriptions of the stories I worked on, along with code snippets and 
 		public IEnumerable<TimeOffEvent> TimeOffEvents { get; set; }
 		}
 
-- Added controller functions for the user inbox ("Inbox") and the admin inbox ("InboxAdmin")
+-Added controller functions for the user inbox ("Inbox") and the admin inbox ("InboxAdmin")
 
 ***I changed the "Index" view for the admin, which was just an inbox view for admin only. I then added a new Admin Inbox view, and removed the Index view entirely. This allowed, when the user/admin clicked
 to see their messages, it would determine if the logged in user was a normal user or an admin and route them to the correct view. See below.***
@@ -66,7 +66,7 @@ to see their messages, it would determine if the logged in user was a normal use
 		else return View("LoginError");
 	}
 
-- Added a completely new Admin Inbox view to dispaly more than just messages like the User Inbox. The Admin Inbox also displays Time Off Requests and the ability to approve/deny them. This code also filters the view to 
+-Added a completely new Admin Inbox view to dispaly more than just messages like the User Inbox. The Admin Inbox also displays Time Off Requests and the ability to approve/deny them. This code also filters the view to 
 only show Time Off Requests that have an empty "Approver ID", which then limits the view to only open requests. This method used the new View Model created above to pass in properties from both Messages and TimeOffEvents Models.
 
 	// GET: Message/Inbox for Admin
@@ -90,7 +90,7 @@ only show Time Off Requests that have an empty "Approver ID", which then limits 
             else return View("LoginError");
         }
 
-- Added the ability to approve or deny time off requests from the Admin Inbox in the Message Controller. Once approved or denied, the view is "Refreshed" and the approved/denied request no longer shows in the view.
+-Added the ability to approve or deny time off requests from the Admin Inbox in the Message Controller. Once approved or denied, the view is "Refreshed" and the approved/denied request no longer shows in the view.
 
         public ActionResult Approve(Guid id)
         {
@@ -109,7 +109,7 @@ only show Time Off Requests that have an empty "Approver ID", which then limits 
             return RedirectToAction("InboxAdmin");
         }
 		
-- Added an Inbox Admin view that had an additional section of "Time Off Requests", the regular inbox for the user does not have this view. I also updated through HTML the layout for a better UI.
+-Added an Inbox Admin view that had an additional section of "Time Off Requests", the regular inbox for the user does not have this view. I also updated through HTML the layout for a better UI.
 
 	@model Schedule_It_2.Models.MessageTimeOffViewModel
 
@@ -223,7 +223,7 @@ only show Time Off Requests that have an empty "Approver ID", which then limits 
 ### Time Off Event View
 ***Time Off Request View should only display open time off requests that have not been approved/denied yet.***
 
-- Added a return view filter in the Time Off Even controller that would only show time off requests that had an empty "Approver ID", which means there was no approve/deny response yet. Once approved/denied, when the view was refreshed, that
+-Added a return view filter in the Time Off Even controller that would only show time off requests that had an empty "Approver ID", which means there was no approve/deny response yet. Once approved/denied, when the view was refreshed, that
 specific time off requests would no longer be displayed in the view.
 
 ***Changed From***
@@ -255,7 +255,7 @@ specific time off requests would no longer be displayed in the view.
 
 ### Internal Message Button
 
-- Added a "button" to the inbox of both the user and the admin to create messages to send internally. Added a new class in CSS to the Site.CSS file to allow for customization of the new message button.
+-Added a "button" to the inbox of both the user and the admin to create messages to send internally. Added a new class in CSS to the Site.CSS file to allow for customization of the new message button.
 
 ***Changed From***
 
@@ -282,7 +282,7 @@ specific time off requests would no longer be displayed in the view.
 ### Remove Delete Capability
 ***Removed capability to delete a message once sent/created.***
 
-- Removed the delete function from the previous version. Removed the delete/edit ability from the view, as well as removing the delete/edit view files from previous developers. 
+-Removed the delete function from the previous version. Removed the delete/edit ability from the view, as well as removing the delete/edit view files from previous developers. 
 
 ***Commented out the below code.***
 
@@ -296,13 +296,13 @@ specific time off requests would no longer be displayed in the view.
 
 ## Bug Fixes/Errors
 
-- I rerouted the view to the correct file. When I started this project the error routing was not working and didn't route to the correct view, thus displaying an error webpage.
+-I rerouted the view to the correct file. When I started this project the error routing was not working and didn't route to the correct view, thus displaying an error webpage.
 
 	else return View("~/Views/AdminError.cshtml");
 	//Added "Shared" to this, before it was "~/Views/AdminError.cshtml" and could not find that location.
 	else return View("~/Views/Shared/AdminError.cshtml");
 
-- When I started this project, the past developers were using an "Index" as an Admin Inbox. It was an inbox, but only for admin. However it was misleading and unnecessary, thus I created a user inbox and an admin inbox view. Since
+-When I started this project, the past developers were using an "Index" as an Admin Inbox. It was an inbox, but only for admin. However it was misleading and unnecessary, thus I created a user inbox and an admin inbox view. Since
 at the time, the index was identical to the user inbox. I created a admin inbox because it had a completely different view and function after that. There were multiple reroute throughout the project that needed fixing. There were
 also issues when inside a messages, one could click "return to inbox", and for admin it had it direct back to inbox. So if you were an admin, in index view, and you clicked back to inbox, it rerouted back to inbox and not index. Overall it
 was unneeded functionality that was resolved by this and adding an admin inbox view instead.
