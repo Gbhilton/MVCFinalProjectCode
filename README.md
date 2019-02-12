@@ -14,11 +14,11 @@ Below are descriptions of the stories I worked on, along with code snippets and 
 
 -Added a new View Model to bring in Message and TimeOffEvent Properties for the Inbox Admin View.
 
-public class MessageTimeOffViewModel
-    {
-        public IEnumerable<Message> Messages { get; set; }
-        public IEnumerable<TimeOffEvent> TimeOffEvents { get; set; }
-    }
+	public class MessageTimeOffViewModel
+   	 {
+       		 public IEnumerable<Message> Messages { get; set; }
+        	 public IEnumerable<TimeOffEvent> TimeOffEvents { get; set; }
+    	 }
 
 - Added controller functions for the user inbox ("Inbox") and the admin inbox ("InboxAdmin")
 
