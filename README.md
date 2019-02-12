@@ -29,12 +29,12 @@ to see their messages, it would determine if the logged in user was a normal use
 
 	public ActionResult Index()
 		{
-			if (User.IsInRole("Admin"))
-				{
-					return View(db.Messages.ToList());
-				}
-				//Added "Shared" to this, before it was "~/Views/AdminError.cshtml" and could not find that location.
-					else return View("~/Views/Shared/AdminError.cshtml");
+		if (User.IsInRole("Admin"))
+			{
+				return View(db.Messages.ToList());
+			}
+			//Added "Shared" to this, before it was "~/Views/AdminError.cshtml" and could not find that location.
+				else return View("~/Views/Shared/AdminError.cshtml");
 		}
 
 ***To Below***
@@ -42,34 +42,34 @@ to see their messages, it would determine if the logged in user was a normal use
 	// GET: Message/Inbox for Users
 	public ActionResult Inbox()
 		{
-			if (User.Identity.IsAuthenticated)
+		if (User.Identity.IsAuthenticated)
+			{
+			if (User.IsInRole("Admin"))
 				{
-				if (User.IsInRole("Admin"))
-					{
-						return RedirectToAction("InboxAdmin");
-					}
-				var userid = HttpContext.User.Identity.GetUserId();
-				var messagesList = db.Messages.ToList();
-				var userMessages = new List<Message>();
-				foreach (var message in messagesList)
-					{
-						foreach (var Id in message.RecipientList)
-							{
-								if (Id == Guid.Parse(userid))
-									{
-										userMessages.Add(message);
-									}
-							}
-					}
-				return View(userMessages);
+					return RedirectToAction("InboxAdmin");
 				}
+			var userid = HttpContext.User.Identity.GetUserId();
+			var messagesList = db.Messages.ToList();
+			var userMessages = new List<Message>();
+			foreach (var message in messagesList)
+				{
+				foreach (var Id in message.RecipientList)
+					{
+					if (Id == Guid.Parse(userid))
+						{
+							userMessages.Add(message);
+						}
+					}
+				}
+			return View(userMessages);
+			}
 			else return View("LoginError");
 		}
 
 ***Added a completely new Admin Inbox view to dispaly more than just messages like the User Inbox. The Admin Inbox also displays Time Off Requests and the ability to approve/deny them. This code also filters the view to 
 only show Time Off Requests that have an empty "Approver ID", which then limits the view to only open requests. This method used the new View Model created above to pass in properties from both Messages and TimeOffEvents Models.***
 
-// GET: Message/Inbox for Admin
+	// GET: Message/Inbox for Admin
         public ActionResult InboxAdmin()
         {
             if (User.Identity.IsAuthenticated)
