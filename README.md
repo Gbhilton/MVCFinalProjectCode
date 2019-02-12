@@ -5,46 +5,6 @@ For the last two weeks of my time at the tech academy, I worked with my peers in
   
 Below are descriptions of the stories I worked on, along with code snippets and navigation links. I also have some full code files in this repo for the larger functionalities I implemented.
 
-## Front End Stories
-* [Internal Message Button](#internal-message-button)
-* [Remove Delete Capability](#remove-delete-capability)
-
-### Internal Message Button
-
--Added a "button" to the inbox of both the user and the admin to create messages to send internally. Added a new class in CSS to the Site.CSS file to allow for customization of the new message button.
-
-***Changed From***
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
-
-***To Below***
-<p class="createMessageBtn">
-<p class="btn btn-default">
-    @Html.ActionLink("Send Message", "Create")
-</p>
-</p>
-
-***CSS***
-/* Styling the "New Message" button in the inbox and index views */
-.createMessageBtn {
-    text-decoration: none;
-    margin-bottom: 20px;
-}
-
-### Remove Delete Capability
-***Removed capability to delete a message once sent/created.***
-
--Removed the delete function from the previous version. Removed the delete/edit ability from the view, as well as removing the delete/edit view files from previous developers. 
-
-<!--<td>
-    //Removed the option to delete or edit a message once it has been sent.
-    @*Html.ActionLink("Delete", "Delete", new { id = item.MessageId })*@
-</td>-->
-
-*Jump to: [Front End Stories](#front-end-stories), [Back End Stories](#back-end-stories), [Other Skills](#other-skills-learned), [Page Top](#live-project)*
-
-
 ## Back End Stories
 * [Admin Inbox Time Off](#admin-inbox-time-off)
 * [Time Off Event View](#time-off-event-view)
@@ -71,16 +31,16 @@ to see their messages, it would determine if the logged in user was a normal use
 ***Changed From***
 public ActionResult Index()
 {
-            if (User.IsInRole("Admin"))
-            {
-                return View(db.Messages.ToList());
-            }
-            //Added "Shared" to this, before it was "~/Views/AdminError.cshtml" and could not find that location.
+     if (User.IsInRole("Admin"))
+         {
+             return View(db.Messages.ToList());
+          }
+     //Added "Shared" to this, before it was "~/Views/AdminError.cshtml" and could not find that location.
             else return View("~/Views/Shared/AdminError.cshtml");
 }
 ***To Below***
-		// GET: Message/Inbox for Users
-        public ActionResult Inbox()
+// GET: Message/Inbox for Users
+public ActionResult Inbox()
         {
             if (User.Identity.IsAuthenticated)
             {
@@ -263,7 +223,7 @@ only show Time Off Requests that have an empty "Approver ID", which then limits 
 ### Time Off Event View
 ***Time Off Request View should only display open time off requests that have not been approved/denied yet.***
 
--Added a return view filter that would only show time off requests that had an empty "Approver ID", which means there was no approve/deny response yet. Once approved/denied, when the view was refreshed, that
+-Added a return view filter in the Time Off Even controller that would only show time off requests that had an empty "Approver ID", which means there was no approve/deny response yet. Once approved/denied, when the view was refreshed, that
 specific time off requests would no longer be displayed in the view.
 
 ***Changed From***
@@ -283,6 +243,47 @@ if (User.IsInRole("Admin"))
         }
     else return View("~/Views/Shared/AdminError.cshtml");
 }
+
+*Jump to: [Front End Stories](#front-end-stories), [Back End Stories](#back-end-stories), [Other Skills](#other-skills-learned), [Page Top](#live-project)*
+
+
+## Front End Stories
+* [Internal Message Button](#internal-message-button)
+* [Remove Delete Capability](#remove-delete-capability)
+
+### Internal Message Button
+
+-Added a "button" to the inbox of both the user and the admin to create messages to send internally. Added a new class in CSS to the Site.CSS file to allow for customization of the new message button.
+
+***Changed From***
+-<p>
+    @Html.ActionLink("Create New", "Create")
+-</p>
+
+***To Below***
+-<p class="createMessageBtn">
+-<p class="btn btn-default">
+    @Html.ActionLink("Send Message", "Create")
+-</p>
+-</p>
+
+***CSS***
+-/* Styling the "New Message" button in the inbox and index views */
+.createMessageBtn {
+    text-decoration: none;
+    margin-bottom: 20px;
+}
+
+### Remove Delete Capability
+***Removed capability to delete a message once sent/created.***
+
+-Removed the delete function from the previous version. Removed the delete/edit ability from the view, as well as removing the delete/edit view files from previous developers. 
+
+***Commented out the below code.***
+-<td>
+    //Removed the option to delete or edit a message once it has been sent.
+    @*Html.ActionLink("Delete", "Delete", new { id = item.MessageId })*@
+-</td>
 
 *Jump to: [Front End Stories](#front-end-stories), [Back End Stories](#back-end-stories), [Other Skills](#other-skills-learned), [Page Top](#live-project)*
 
