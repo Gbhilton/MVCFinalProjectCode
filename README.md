@@ -5,202 +5,312 @@ For the last two weeks of my time at the tech academy, I worked with my peers in
   
 Below are descriptions of the stories I worked on, along with code snippets and navigation links. I also have some full code files in this repo for the larger functionalities I implemented.
 
+## Front End Stories
+* [Internal Message Button](#internal-message-button)
+* [Remove Delete Capability](#remove-delete-capability)
+
+### Internal Message Button
+
+-Added a "button" to the inbox of both the user and the admin to create messages to send internally. Added a new class in CSS to the Site.CSS file to allow for customization of the new message button.
+
+***Changed From***
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+
+***To Below***
+<p class="createMessageBtn">
+<p class="btn btn-default">
+    @Html.ActionLink("Send Message", "Create")
+</p>
+</p>
+
+***CSS***
+/* Styling the "New Message" button in the inbox and index views */
+.createMessageBtn {
+    text-decoration: none;
+    margin-bottom: 20px;
+}
+
+### Remove Delete Capability
+***Removed capability to delete a message once sent/created.***
+
+-Removed the delete function from the previous version. Removed the delete/edit ability from the view, as well as removing the delete/edit view files from previous developers. 
+
+<!--<td>
+    //Removed the option to delete or edit a message once it has been sent.
+    @*Html.ActionLink("Delete", "Delete", new { id = item.MessageId })*@
+</td>-->
+
+*Jump to: [Front End Stories](#front-end-stories), [Back End Stories](#back-end-stories), [Other Skills](#other-skills-learned), [Page Top](#live-project)*
+
 
 ## Back End Stories
-* [Sorting Network Table](#sorting-network-table)
-* [Meetup API](#meetup-api)
+* [Admin Inbox Time Off](#admin-inbox-time-off)
+* [Time Off Event View](#time-off-event-view)
 
+### Admin Inbox Time Off
+***Admin Inbox that displays functioning Time Off Requests with Approve/Deny ability.***
 
+-Added a new View Model to bring in Message and TimeOffEvent Properties for the Inbox Admin View.
 
-### Sorting Network Table
-This page had two tables, one as part of the view, and one was a partial view. My task was to make the table on the partial view sortable by several different catagories. I wanted to do this without reloading the page. 
+namespace Schedule_It_2.Models
+{
+    public class MessageTimeOffViewModel
+    {
+        public IEnumerable<Message> Messages { get; set; }
+        public IEnumerable<TimeOffEvent> TimeOffEvents { get; set; }
+    }
+}
 
-       public ActionResult _OutsideNetworking(string sortOrder)
-        {
-            List<JPOutsideNetworking> partialViewList = new List<JPOutsideNetworking>();
-            partialViewList = db.JPOutsideNetworkings.ToList();
+- Added controller functions for the user inbox ("Inbox") and the admin inbox ("InboxAdmin")
 
-            ViewBag.NameSortParm = sortOrder == "studentName" ? "studentName_desc" : "studentName";
-            ViewBag.PositionSortParm = sortOrder == "position" ? "position_desc" : "position";
-            ViewBag.CompanySortParm = sortOrder == "company" ? "company_desc" : "company";
-            ViewBag.LocationSortParm = sortOrder == "location" ? "location_desc" : "location";
-            ViewBag.StackSortParm = sortOrder == "stack" ? "stack_desc" : "stack";
+***I changed the "Index" view for the admin, which was just an inbox view for admin only. I then added a new Admin Inbox view, and removed the Index view entirely. This allowed, when the user/admin clicked
+to see their messages, it would determine if the logged in user was a normal user or an admin and route them to the correct view. See below.***
 
-            switch (sortOrder)
+***Changed From***
+public ActionResult Index()
+{
+            if (User.IsInRole("Admin"))
             {
-                default:
-                case "studentName":
-                    partialViewList = partialViewList.OrderBy(x => x.Name).ToList();
-                    break;
-                case "studentName_desc":
-                    partialViewList = partialViewList.OrderByDescending(x => x.Name).ToList();
-                    break;
-                case "position":
-                    partialViewList = partialViewList.OrderBy(x => x.Position).ToList();
-                    break;
-                case "position_desc":
-                    partialViewList = partialViewList.OrderByDescending(x => x.Position).ToList();
-                    break;
-                case "company":
-                    partialViewList = partialViewList.OrderBy(x => x.Company).ToList();
-                    break;
-                case "company_desc":
-                    partialViewList = partialViewList.OrderByDescending(x => x.Company).ToList();
-                    break;
-                case "location":
-                    partialViewList = partialViewList.OrderBy(x => x.Location).ToList();
-                    break;
-                case "location_desc":
-                    partialViewList = partialViewList.OrderByDescending(x => x.Location).ToList();
-                    break;
-                case "stack":
-                    partialViewList = partialViewList.OrderBy(x => x.Stack).ToList();
-                    break;
-                case "stack_desc":
-                    partialViewList = partialViewList.OrderByDescending(x => x.Stack).ToList();
-                    break;
+                return View(db.Messages.ToList());
             }
-
-            return PartialView("_OutsideNetworking", partialViewList);
-        }       
- 
- ### Meetup API
-I was tasked with fixing a parial view that displays information from Meetup.com. A previous developer had attempted the story with limited results. The meetup info could only be retrieved once per hour,my solution was to request meetup's info and save the results to a database. Whenever the API denied a request, the controller would use the latest data that had been saved.
-
-    public PartialViewResult _MeetUpApi()
+            //Added "Shared" to this, before it was "~/Views/AdminError.cshtml" and could not find that location.
+            else return View("~/Views/Shared/AdminError.cshtml");
+}
+***To Below***
+		// GET: Message/Inbox for Users
+        public ActionResult Inbox()
         {
-            string[] meetupRequestUrls = {//url's removed for neatness};
-
-            var events = new List<JPMeetupEvent>();
-            try
+            if (User.Identity.IsAuthenticated)
             {
-                var responseStrings = new List<string>();
-                foreach (var url in meetupRequestUrls)
+                if (User.IsInRole("Admin"))
                 {
-                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-                    request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-
-                    using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-                    using (Stream stream = response.GetResponseStream())
-                    using (StreamReader reader = new StreamReader(stream))
+                    return RedirectToAction("InboxAdmin");
+                }
+                var userid = HttpContext.User.Identity.GetUserId();
+                var messagesList = db.Messages.ToList();
+                var userMessages = new List<Message>();
+                foreach (var message in messagesList)
+                {
+                    foreach (var Id in message.RecipientList)
                     {
-                        responseStrings.Add(reader.ReadToEnd());
+                        if (Id == Guid.Parse(userid))
+                        {
+                            userMessages.Add(message);
+                        }
                     }
                 }
-
-                foreach (var str in responseStrings)
-                {
-                    events.AddRange(ConvertMeetupStringToJPMeetupEvents(str));
-                }
-                events = FilterPastEvents(events);
-                events = FilterDuplicateEvents(events);
-
-                //remove old events from table
-                db.JPMeetupEvents.RemoveRange(db.JPMeetupEvents);
-
-                db.JPMeetupEvents.AddRange(events);
-
-                db.SaveChanges();
+                return View(userMessages);
             }
-
-            //if there is a web exception, we need to load events from the database instead
-            catch (WebException)
-            {
-                foreach (var meetupEvent in db.JPMeetupEvents)
-                {
-                    events.Add(meetupEvent);
-                }
-                    events = FilterPastEvents(events);
-            }                                   
-            return PartialView("_MeetUpApi", events);
+            else return View("LoginError");
         }
 
-I had to write a helper function to convert the string that comes in from the API to our event model.
+***Added a completely new Admin Inbox view to dispaly more than just messages like the User Inbox. The Admin Inbox also displays Time Off Requests and the ability to approve/deny them. This code also filters the view to 
+only show Time Off Requests that have an empty "Approver ID", which then limits the view to only open requests. This method used the new View Model created above to pass in properties from both Messages and TimeOffEvents Models.***
 
-        List<JPMeetupEvent> ConvertMeetupStringToJPMeetupEvents(string meetup)
+// GET: Message/Inbox for Admin
+        public ActionResult InboxAdmin()
         {
-            var events = new List<JPMeetupEvent>();
-            var meetupSB = new StringBuilder(meetup);            
-            while (true)
+            if (User.Identity.IsAuthenticated)
             {
-                var meetupEvent = new JPMeetupEvent();
-
-                int nameIndex = meetupSB.ToString().IndexOf("\"name\"");
-                if (nameIndex == -1) break;
-                meetupSB.Remove(0, nameIndex + 8);
-                int commaIndex = meetupSB.ToString().IndexOf(",");
-                meetupEvent.JPEventName = meetupSB.ToString().Substring(0,commaIndex - 1);
-
-                int dateIndex = meetupSB.ToString().IndexOf("\"local_date\"");                
-                meetupSB.Remove(0, dateIndex + 14);
-                commaIndex = meetupSB.ToString().IndexOf(",");
-                var date = DateTime.Parse(meetupSB.ToString().Substring(0, commaIndex - 1));
-                meetupEvent.JPEventDate = date;
-
-                int linkIndex = meetupSB.ToString().IndexOf("\"link\"");              
-                meetupSB.Remove(0, linkIndex + 8);
-                commaIndex = meetupSB.ToString().IndexOf(",");
-                meetupEvent.JPEventLink = meetupSB.ToString().Substring(0, commaIndex - 1);
-
-                events.Add(meetupEvent);
-            }
-
-
-            return events;
-        }
-
-I also had to make sure the controller filtered out events that had already passed. Because multiple meetup groups sometimes post the same event, or would have several entries for a weekly event, I had to filter duplicate events and display the earliest one. 
-
-        List<JPMeetupEvent> FilterPastEvents(List<JPMeetupEvent> events)
-        {
-            var filteredList = new List<JPMeetupEvent>();
-
-            foreach (var meetupEvent in events)
-            {
-                if (meetupEvent.JPEventDate.CompareTo(DateTime.Now) >= 0)
+                if (User.IsInRole("Admin"))
                 {
-                    filteredList.Add(meetupEvent);
-                }
-            }
+                var userid = HttpContext.User.Identity.GetUserId();
+                var messagesList = db.Messages.Where(x => x.Sender.Id == userid);
+                var timeOffEvent = db.TimeOffEvents.Where(x => x.ApproverId == null);
+                var viewModel = new MessageTimeOffViewModel();
 
-            return filteredList;
+                viewModel.Messages = messagesList;
+                viewModel.TimeOffEvents = timeOffEvent;
+                return View(viewModel);
+                }
+                else return View("Inbox");
+            }
+            else return View("LoginError");
         }
 
-        //will keep the earliest of the duplicates
-        List<JPMeetupEvent> FilterDuplicateEvents(List<JPMeetupEvent> events)
+-Added the ability to approve or deny time off requests from the Admin Inbox in the Message Controller. Once approved or denied, the view is "Refreshed" and the approved/denied request no longer shows in the view.
+
+        public ActionResult Approve(Guid id)
         {
-            var filteredEvents = new List<JPMeetupEvent>();
-            var eventNames = new List<string>();
-            foreach (var meetupEvent in events)
-            {
-                if (!eventNames.Contains(meetupEvent.JPEventName))
-                {
-                    eventNames.Add(meetupEvent.JPEventName);
-                    filteredEvents.Add(meetupEvent);
-                }
-            }
-            return filteredEvents;
+            TimeOffEvent timeOffEvent = db.TimeOffEvents.Find(id);
+            timeOffEvent.ApproverId = new Guid(User.Identity.GetUserId());
+            db.SaveChanges();
+            return RedirectToAction("InboxAdmin");
         }
+
+        
+        public ActionResult Deny(Guid id, Guid userId)
+        {
+            TimeOffEvent timeOffEvent = db.TimeOffEvents.Find(id);
+            db.TimeOffEvents.Remove(timeOffEvent);
+            db.SaveChanges();
+            return RedirectToAction("InboxAdmin");
+        }
+		
+-Added an Inbox Admin view that had an additional section of "Time Off Requests", the regular inbox for the user does not have this view. I also updated through HTML the layout for a better UI.
+
+@model Schedule_It_2.Models.MessageTimeOffViewModel
+
+<h2>Inbox</h2>
+<h4>Admin</h4>
+
+<p class="createMessageBtn">
+<p class="btn btn-default">
+    @Html.ActionLink("Send Message", "Create")
+</p>
+</p>
+
+<br />
+<h4>Messages</h4>
+
+<table class="table">
+    <tr>
+        <th>
+           Date Sent
+        </th>
+        <th>
+           Date Read
+        </th>
+        <th>
+           Message Title
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.Messages)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.DateSent)
+            </td>
+            <td class="readDate">
+                @Html.DisplayFor(modelItem => item.DateRead)
+            </td>
+            <td>
+                <span class="message-title">@Html.DisplayFor(modelItem => item.MessageTitle)</span>
+            </td>
+            <td hidden class="messageContent">
+                @Html.DisplayFor(modelItem => item.Content)
+            </td>
+        </tr>
+    }
+</table>
+
+<br />
+<h4>Time Off Requests</h4>
+
+<table class="table">
+    <tr>
+        <th>
+            User Id
+        </th>
+        <th>
+            Title
+        </th>
+        <th>
+            Note
+        </th>
+        <th>
+            Start Date
+        </th>
+        <th>
+            End Date
+        </th>
+        <th>
+            Approval Decision
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.TimeOffEvents)
+    {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.UserId)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Title)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Note)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Start)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.End)
+        </td>
+        <td>
+            @Html.ActionLink("Approve", "Approve", new { id = item.EventId})
+            @Html.ActionLink("Deny", "Deny", new { id = item.EventId})
+        </td>
+    </tr>
+    }
+</table>
+
+@* Modal that shows the contents of the message *@
+<div id="inboxModal" class="modal">
+    <div class="modal-content">
+        <h4 id="modalTitle">Error</h4>
+        @*<p>From: <span id="modalFrom"></span></p>*@
+        <p id="modalContent">There was an error getting the message information</p>
+        <div class="btn btn-default closeModal">Close</div>
+    </div>
+</div>
+
+### Time Off Event View
+***Time Off Request View should only display open time off requests that have not been approved/denied yet.***
+
+-Added a return view filter that would only show time off requests that had an empty "Approver ID", which means there was no approve/deny response yet. Once approved/denied, when the view was refreshed, that
+specific time off requests would no longer be displayed in the view.
+
+***Changed From***
+if (User.IsInRole("Admin"))
+        {
+			ViewBag.headerData = new TimeOffEvent();
+			return View(db.TimeOffEvents.OrderBy(x => x.Start).ToList());
+        }
+    else return View("~/Views/Shared/AdminError.cshtml");
+}
+
+***To Below***
+if (User.IsInRole("Admin"))
+        {
+			ViewBag.headerData = new TimeOffEvent();
+			return View(db.TimeOffEvents.Where(x => x.ApproverId == null));
+        }
+    else return View("~/Views/Shared/AdminError.cshtml");
+}
 
 *Jump to: [Front End Stories](#front-end-stories), [Back End Stories](#back-end-stories), [Other Skills](#other-skills-learned), [Page Top](#live-project)*
 
 
-## Front End Stories
-* [Button Sizing Bug](#button-sizing-bug)
+## Bug Fixes/Errors
 
-### Button Sizing Bug
-This story was to fix an issue where buttons on the navbar would get smaller when clicked. It took some time to realize the font size was actually staying the same, and it was the font that was changing. From there, I just changed the a:active selector for those elements on the style sheet to use the same font. 
+-I rerouted the view to the correct file. When I started this project the error routing was not working and didn't route to the correct view, thus displaying an error webpage.
 
+	else return View("~/Views/AdminError.cshtml");
+//Added "Shared" to this, before it was "~/Views/AdminError.cshtml" and could not find that location.
+	else return View("~/Views/Shared/AdminError.cshtml");
 
+-When I started this project, the past developers were using an "Index" as an Admin Inbox. It was an inbox, but only for admin. However it was misleading and unnecessary, thus I created a user inbox and an admin inbox view. Since
+at the time, the index was identical to the user inbox. I created a admin inbox because it had a completely different view and function after that. There were multiple reroute throughout the project that needed fixing. There were
+also issues when inside a messages, one could click "return to inbox", and for admin it had it direct back to inbox. So if you were an admin, in index view, and you clicked back to inbox, it rerouted back to inbox and not index. Overall it
+was unneeded functionality that was resolved by this and adding an admin inbox view instead.
+
+	return RedirectToAction("Index");
+//Changed the Redirect to "Inbox" instead of "Index". This would cause an error if you were not an admin. Now once you create the message it brings you back to your inbox.
+	return RedirectToAction("Inbox");
 
 *Jump to: [Front End Stories](#front-end-stories), [Back End Stories](#back-end-stories), [Other Skills](#other-skills-learned), [Page Top](#live-project)*
+
 
 ## Other Skills Learned
-* Working with a group of developers to identify front and back end bugs to the improve usability of an application
-* Improving project flow by communicating about who needs to check out which files for their current story
-* Learning new efficiencies from other developers by observing their workflow and asking questions  
-* Practice with team programming/pair programming when one developer runs into a bug they cannot solve
-    * One of the developers on the team was having trouble with the JavaScript function being called to increment and decrement the likes on a page and myself and two others on the team sat with him and had him talk through what he had done so far. I asked questions about different ways to approach it until we found where it was broken and what needed to be fixed.
-    * When a user requests a friendship there is supposed to be a pending notification displayed. One of the other developers was hitting a wall while working on this story when he discovered the functionality was working four different ways across the application. I sat with him and we talked through the process of each JavaScript function being called. We discovered there were multiple functions by the same name being loaded, so we simplified the code down to just one function. Clicking the button would now work from the nav drop-down but not on a specific page. I realized that the page was populating two different spans with the same ID and these were what was being targeted by the JavaScript function. So we needed to make that user-specific element identifier a class and target the class instead so that a change in either place would affect both.
-  
+* Working with a group of developers to identify front and back end bugs to the improve usability of an application.
+* Improving project flow by communicating about who needs to check out which files for their current story.
+* Learning new efficiencies from other developers by observing their workflow and asking questions.  
+* Practice with team programming/pair programming when one developer runs into a bug they cannot solve.
+ 
 *Jump to: [Front End Stories](#front-end-stories), [Back End Stories](#back-end-stories), [Other Skills](#other-skills-learned), [Page Top](#live-project)*
